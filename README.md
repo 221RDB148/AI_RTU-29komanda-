@@ -1,2 +1,2 @@
-# AI_RTU-29komanda-
+# AI_RTU komanda-29
 hello World!!
