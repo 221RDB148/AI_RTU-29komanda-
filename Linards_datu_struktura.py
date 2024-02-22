@@ -48,33 +48,25 @@ def create_level(current_level_list, current_level):
         if x.rocks - 2 >= 0:
             if (x.rocks - 2) % 2 == 0:
                 if current_level % 2 == 0:
-                    check_connections(x.node_id, x.p1_points + 2, x.p1_rocks + 2, x.p2_points, x.p2_rocks, x.rocks - 2,
-                                      x)
+                    check_connections(x.node_id, x.p1_points + 2, x.p1_rocks + 2, x.p2_points, x.p2_rocks, x.rocks - 2, x)
                 else:
-                    check_connections(x.node_id, x.p1_points + 2, x.p1_rocks, x.p2_points, x.p2_rocks + 2, x.rocks - 2,
-                                      x)
+                    check_connections(x.node_id, x.p1_points + 2, x.p1_rocks, x.p2_points, x.p2_rocks + 2, x.rocks - 2, x)
             else:
                 if current_level % 2 == 0:
-                    check_connections(x.node_id, x.p1_points, x.p1_rocks + 2, x.p2_points + 2, x.p2_rocks, x.rocks - 2,
-                                      x)
+                    check_connections(x.node_id, x.p1_points, x.p1_rocks + 2, x.p2_points + 2, x.p2_rocks, x.rocks - 2, x)
                 else:
-                    check_connections(x.node_id, x.p1_points, x.p1_rocks, x.p2_points + 2, x.p2_rocks + 2, x.rocks - 2,
-                                      x)
+                    check_connections(x.node_id, x.p1_points, x.p1_rocks, x.p2_points + 2, x.p2_rocks + 2, x.rocks - 2, x)
         if x.rocks - 3 >= 0:
             if (x.rocks - 3) % 2 == 0:
                 if current_level % 2 == 0:
-                    check_connections(x.node_id, x.p1_points + 2, x.p1_rocks + 3, x.p2_points, x.p2_rocks, x.rocks - 3,
-                                      x)
+                    check_connections(x.node_id, x.p1_points + 2, x.p1_rocks + 3, x.p2_points, x.p2_rocks, x.rocks - 3, x)
                 else:
-                    check_connections(x.node_id, x.p1_points + 2, x.p1_rocks, x.p2_points, x.p2_rocks + 3, x.rocks - 3,
-                                      x)
+                    check_connections(x.node_id, x.p1_points + 2, x.p1_rocks, x.p2_points, x.p2_rocks + 3, x.rocks - 3, x)
             else:
                 if current_level % 2 == 0:
-                    check_connections(x.node_id, x.p1_points, x.p1_rocks + 3, x.p2_points + 2, x.p2_rocks, x.rocks - 3,
-                                      x)
+                    check_connections(x.node_id, x.p1_points, x.p1_rocks + 3, x.p2_points + 2, x.p2_rocks, x.rocks - 3, x)
                 else:
-                    check_connections(x.node_id, x.p1_points, x.p1_rocks, x.p2_points + 2, x.p2_rocks + 3, x.rocks - 3,
-                                      x)
+                    check_connections(x.node_id, x.p1_points, x.p1_rocks, x.p2_points + 2, x.p2_rocks + 3, x.rocks - 3, x)
 
 
 number = 12
