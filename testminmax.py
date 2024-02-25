@@ -1,8 +1,6 @@
 import numpy as np
 
-akm = 50
-
-class player:
+class Player:
     def __init__(self, num_stone, num_points):
         self.num_stone = num_stone
         self.num_points = num_points
@@ -71,74 +69,67 @@ def minimax(akm, num_points1, num_points2, depth, is_maximizing):
 
         return min_eval, ai_move
 
-
-def best_move_min(akm, num_points1, num_points2):
-    best_eval = np.inf
+def best_move(akm, num_points1, num_points2, depth, is_maximizing):
+    best_eval = -np.inf if is_maximizing else np.inf
     best_move = None
-    eval,ai2_move = minimax(akm, num_points1, num_points2, 100, True)
-
-    if eval < best_eval:
+    
+    eval,ai_move = minimax(akm, num_points1, num_points2, depth, True)
+    
+    if eval > best_eval and is_maximizing or eval < best_eval and (not is_maximizing):
         print(best_eval)
         best_eval = eval
         print(best_eval)
-        best_move = ai2_move
-    print(f"AI2: I take {best_move}")
+        best_move = ai_move
+    print(f"AI1: I take {best_move}" if is_maximizing else f"AI2: I take {best_move}")
     return best_move
 
+def main():
 
-def best_move_max(akm, num_points1, num_points2):
-    best_eval = -np.inf
-    best_move = None
-    eval,ai1_move = minimax(akm, num_points1, num_points2, 100, False)
-
-    if eval > best_eval:
-        print(best_eval)
-        best_eval = eval
-        print(best_eval)
-        best_move = ai1_move
-        # print("better:  ", ai1_move)
-    print(f"AI1: I take {best_move}")
-    return best_move
-
-human = player(0, 0)
-ai1 = player(0, 0)
-ai2 = player(0, 0)
-
-while True:
-    # ai1_move = int(input())
-    ai1_move = best_move_max(akm, ai1.num_points, ai2.num_points)
-    if ai1_move > 2 and akm > 2:
-        ai1.num_points += 3
-        akm -= 3
-    else:
-        if akm >= 2:
-            ai1.num_points += 2
-            akm -= 2
-    if akm % 2 == 0:
-        ai2.num_points += 2
-    if akm % 2 == 1:
-        ai1.num_points += 2
-    print(f"Akm: {akm}   Eval: {ai1.num_points - ai2.num_points}")
-    print(f"Score:    {ai1.num_points}   {ai2.num_points}")
-    if game_end(akm):
-        break
-
-    ai2_move = best_move_min(akm, ai1.num_points, ai2.num_points)
-    if ai2_move > 2 and akm > 2:
-        ai2.num_points += 3
-        akm -= 3
-    else:
-        if akm >= 2:
+    depth = 100
+    human = Player(0, 0)
+    ai1 = Player(0, 0)
+    ai2 = Player(0, 0)
+    print("akmenu sk.: ")
+    akm = int(input())
+    
+    while True:
+        # ai1_move = int(input())
+        ai1_move = best_move(akm, ai1.num_points, ai2.num_points, depth, True)
+        if ai1_move > 2 and akm > 2:
+            ai1.num_points += 3
+            akm -= 3
+        else:
+            if akm >= 2:
+                ai1.num_points += 2
+                akm -= 2
+        if akm % 2 == 0:
             ai2.num_points += 2
-            akm -= 2
-    if akm % 2 == 0:
-        ai1.num_points += 2
-    if akm % 2 == 1:
-        ai2.num_points += 2
-    print(f"Akm: {akm}   Eval: {ai1.num_points - ai2.num_points}")
-    print(f"Score:    {ai1.num_points}   {ai2.num_points}")
-    if game_end(akm):
-        break
-print(f"Eval: {ai1.num_points - ai2.num_points}")
-print(f"{ai1.num_points}   {ai2.num_points}")
-print("end")
+        if akm % 2 == 1:
+            ai1.num_points += 2
+        print(f"akm: {akm}   Eval: {ai1.num_points - ai2.num_points}")
+        print(f"Score:    {ai1.num_points}   {ai2.num_points}")
+        if game_end(akm):
+            break
+
+        ai2_move = best_move(akm, ai1.num_points, ai2.num_points, depth, False)
+        if ai2_move > 2 and akm > 2:
+            ai2.num_points += 3
+            akm -= 3
+        else:
+            if akm >= 2:
+                ai2.num_points += 2
+                akm -= 2
+        if akm % 2 == 0:
+            ai1.num_points += 2
+        if akm % 2 == 1:
+            ai2.num_points += 2
+        print(f"akm: {akm}   Eval: {ai1.num_points - ai2.num_points}")
+        print(f"Score:    {ai1.num_points}   {ai2.num_points}")
+        if game_end(akm):
+            break
+    print(f"Eval: {ai1.num_points - ai2.num_points}")
+    print(f"{ai1.num_points}   {ai2.num_points}")
+    print("end")
+    
+if __name__ == "__main__":
+    main()
