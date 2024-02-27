@@ -12,7 +12,7 @@ def game_end(akm):
 
 
 def evaluation(akm, num_points1, num_points2):
-    print("  ", num_points1, "  ", num_points2)
+    #print("  ", num_points1, "  ", num_points2)
     return num_points1 - num_points2
 
 
@@ -93,7 +93,7 @@ def best_move(akm, num_points1, num_points2, depth, is_maximizing):
     best_eval = -np.inf if is_maximizing else np.inf
     best_move = None
 
-    eval, ai_move = minimax(akm, num_points1, num_points2, depth, True)
+    eval, ai_move = minimax(akm, num_points1, num_points2, depth, is_maximizing)
 
     if eval > best_eval and is_maximizing or eval < best_eval and (not is_maximizing):
         print(best_eval)
