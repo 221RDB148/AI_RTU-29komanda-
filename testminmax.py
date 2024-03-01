@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Player:
     def __init__(self, num_stone, num_points):
         self.num_stone = num_stone
@@ -54,7 +51,7 @@ def minimax(akm, num_points1, num_points2, depth, is_maximizing):
     if game_end(akm) or depth == 0:
         return evaluation(akm, num_points1, num_points2), None
     if is_maximizing:
-        max_eval = -np.inf
+        max_eval = -float('inf')
         for ai1_move in [2, 3]:
             num_points1d = num_points1
             num_points2d = num_points2
@@ -71,7 +68,7 @@ def minimax(akm, num_points1, num_points2, depth, is_maximizing):
 
         return max_eval, ai_move
     else:
-        min_eval = np.inf
+        min_eval = float('inf')
         for ai2_move in [2, 3]:
             num_points1d = num_points1
             num_points2d = num_points2
@@ -90,7 +87,7 @@ def minimax(akm, num_points1, num_points2, depth, is_maximizing):
 
 
 def best_move(akm, num_points1, num_points2, depth, is_maximizing):
-    best_eval = -np.inf if is_maximizing else np.inf
+    best_eval = -float('inf') if is_maximizing else float('inf')
     best_move = None
 
     eval, ai_move = minimax(akm, num_points1, num_points2, depth, is_maximizing)
