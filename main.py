@@ -7,17 +7,22 @@ from Linards_datu_struktura import generate_game_tree, print_nodes
 
 class Player:
 
-    def __init__(self, playern, score, rocks, statlabel=None) -> None:
-        self.playern = playern
+    def __init__(self) -> None:
         self.name = None
-        self.score = score
-        self.rocks = rocks
-        self.statlabel = statlabel
+        self.score = 0
+        self.rocks = 0
+        self.statlabel = None
+
+    def reset(self) -> None:
+        self.name = None
+        self.score = 0
+        self.rocks = 0
+        self.statlabel.set('')
 
 
 class GameState:
-    def __init__(self, player1: Player, player2: Player) -> None:
-        self.players = [player1, player2]
+    def __init__(self) -> None:
+        self.players = [Player(), Player()]
         self.turn = None
         self.totalrocks = None
         self.status = None
@@ -26,8 +31,19 @@ class GameState:
         self.game_tree = None
         self.past_moves = []
 
+    def reset(self) -> None:
+        self.players[0].reset()
+        self.players[1].reset()
+        self.turn.set(0)
+        self.totalrocks.set(60)
+        self.status.set("Rezultāts: Progresā")
+        self.gamestatelabel.set("...")
+        self.text_pastmoves.set("Veikto gājienu saraksts:")
+        self.game_tree = None
+        self.past_moves = []
 
-def run_game_ui(game_state) -> None:
+
+def main() -> None:
 
     def start_game() -> None:
         if has_errors() is True:
@@ -36,27 +52,27 @@ def run_game_ui(game_state) -> None:
         # print_nodes(game_state.game_tree)  # Testēšanai
         game_state.players[0].name = value_p1choice.get()
         game_state.players[1].name = value_p2choice.get()
-        for i in range(2):
-            game_state.players[i].statlabel.set(f"{i + 1}. Spēlētāja\n"
-                                                f"Punktu skaits: {game_state.players[i].score}\n"
-                                                f"Akmentiņu skaits: {game_state.players[i].rocks}\n"
-                                                f"Spēlētājs: {game_state.players[i].name}")
+        game_state.players[0].statlabel.set(f"1. Spēlētāja\n"
+                                            f"Punktu skaits: {game_state.players[0].score}\n"
+                                            f"Akmentiņu skaits: {game_state.players[0].rocks}\n"
+                                            f"Spēlētājs: {game_state.players[0].name}")
+        game_state.players[1].statlabel.set(f"2. Spēlētāja\n"
+                                            f"Punktu skaits: {game_state.players[1].score}\n"
+                                            f"Akmentiņu skaits: {game_state.players[1].rocks}\n"
+                                            f"Spēlētājs: {game_state.players[1].name}")
         game_state.turn.set(0)
         update_gamestatelabel()
 
         f1.grid_remove()
         f2.grid(sticky='nwe')
 
-    def reset_game() -> None:  # TODO izveidot funkcionalitāti
-        ...
-        # f2.grid_remove()
-        # f1.grid()
-        #
-        # # Reset variables
-        #
-        # game_state.totalrocks.set(60)
-        #
-        # game_state.status.set("Rezultāts: Progresā")
+    def reset_game() -> None:
+        f2.grid_remove()
+        game_state.reset()
+        f2_midframe_button_left.config(state='normal')
+        f2_midframe_button_right.config(state='normal')
+        f2_midframe_button_confirm.config(state='normal')
+        f1.grid()
 
     def has_errors() -> bool:
         has_error = False
@@ -98,14 +114,21 @@ def run_game_ui(game_state) -> None:
 
     def update_gamestatelabel() -> None:
         game_state.gamestatelabel.set(f"Pašreizējais akmentiņu skaits: {game_state.totalrocks.get()}\n"
-                                      f"{(game_state.turn.get() % 2)+1}.spēlētāja gājiens!")
+                                      f"{(game_state.turn.get() % 2) + 1}.spēlētāja gājiens!")
 
     def update_statlabel() -> None:
-        current_player = game_state.players[1-(game_state.turn.get() % 2)]
-        current_player.statlabel.set(f"{current_player.playern}. Spēlētāja\n"
-                                     f"Punktu skaits: {current_player.score}\n"
-                                     f"Akmentiņu skaits: {current_player.rocks}\n"
-                                     f"Spēlētājs: {current_player.name}")
+        player1 = game_state.players[0]
+        player2 = game_state.players[1]
+
+        player1.statlabel.set(f"1. Spēlētāja\n"
+                              f"Punktu skaits: {player1.score}\n"
+                              f"Akmentiņu skaits: {player1.rocks}\n"
+                              f"Spēlētājs: {player1.name}")
+
+        player2.statlabel.set(f"2. Spēlētāja\n"
+                              f"Punktu skaits: {player2.score}\n"
+                              f"Akmentiņu skaits: {player2.rocks}\n"
+                              f"Spēlētājs: {player2.name}")
 
     def update_pastmovelabel() -> None:
         newtext = "Veikto gājienu saraksts:\n"
@@ -114,27 +137,47 @@ def run_game_ui(game_state) -> None:
         game_state.text_pastmoves.set(newtext)
 
     def confirm_move(rocks_taken) -> None:
-        if rocks_taken == 0 or game_state.totalrocks.get() - rocks_taken < 0:
+        if rocks_taken == 0 or game_state.totalrocks.get() - rocks_taken < 0:  # Pārbauda, vai ir derīgs gājiens
             return
         game_state.totalrocks.set(game_state.totalrocks.get() - rocks_taken)
         turn = game_state.turn.get()
-        game_state.players[turn % 2].rocks += rocks_taken
+        game_state.players[turn % 2].rocks += rocks_taken  # Pievieno paņemtos akmentiņus spēlētāja skaitam
 
-        # Pievienot gājienu vēsturei
-        game_state.past_moves.append((turn+1,
+        if game_state.totalrocks.get() % 2:
+            game_state.players[turn % 2].score += 2  # Pievieno 2 punktus spēlētājam, jo ir nepāra akmentiņi
+        else:
+            game_state.players[(1 + turn) % 2].score += 2  # Pievieno 2 punktus pretiniekam, jo ir pāra akmentiņi
+
+        # Pievieno gājienu vēsturei
+        game_state.past_moves.append((turn + 1,
                                       turn % 2,
                                       rocks_taken))
-        # Nomainīt gājienu
+        # Pārbauda, vai spēle ir beigusies
+        if game_state.totalrocks.get() < 2:
+            if game_state.players[0].score > game_state.players[1].score:
+                result = "1.spēlētājs uzvar"
+            elif game_state.players[0].score < game_state.players[1].score:
+                result = "2.spēlētājs uzvar"
+            else:
+                result = "Neizšķirts"
+            game_state.status.set(f"Rezultāts: {result}!")
+
+            f2_midframe_button_left.config(state='disabled')
+            f2_midframe_button_right.config(state='disabled')
+            f2_midframe_button_confirm.config(state='disabled')
+
+        # Nomaina gājienu
         game_state.turn.set(turn + 1)
 
-        # Atjaunot uzrakstus
+        # Atjauno uzrakstus
         update_pastmovelabel()
         update_statlabel()
         update_gamestatelabel()
 
-        # Atiestatīt pogas izvēli
+        # Atiestata pogas izvēli
         rocks_chosen.set(0)
 
+    game_state = GameState()
     # --- Spēles loga izveide un uzstādīšana
     root = ThemedTk(theme="arc")  # Izkomentēt šo un atkomentēt apakšējo, lai strādātu bez papilbibliotēkām
     # root = tk.Tk()
@@ -148,12 +191,12 @@ def run_game_ui(game_state) -> None:
     ...
 
     # - Konteineri (Frames)
-    f1 = ttk.Frame(root,    # Sākuma lapas konteineris
+    f1 = ttk.Frame(root,  # Sākuma lapas konteineris
                    padding=30,
                    width=800,
                    height=550)
 
-    f2 = ttk.Frame(root,    # Galvenais spēles Konteineris (2.lapa)
+    f2 = ttk.Frame(root,  # Galvenais spēles Konteineris (2.lapa)
                    padding=30,
                    width=800,
                    height=550)
@@ -292,13 +335,6 @@ def run_game_ui(game_state) -> None:
     root.minsize(width=800, height=550)
     root.title("29.komandas projekts")
     root.mainloop()
-
-
-def main():
-    p1 = Player(playern=1, score=0, rocks=0)
-    p2 = Player(playern=2, score=0, rocks=0)
-    game_state = GameState(player1=p1, player2=p2)
-    run_game_ui(game_state)
 
 
 if __name__ == '__main__':
