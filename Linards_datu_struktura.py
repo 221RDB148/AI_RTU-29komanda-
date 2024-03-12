@@ -25,11 +25,13 @@ def generate_game_tree(rock_n) -> list[list[Variables]]:
                 x.children.append(xxx.node_id)
                 return
 
-        node_counter += 1
         levels[-1].append(Variables(node_counter, node_id, p1_points, p1_rocks, p2_points, p2_rocks, rocks))
         x.children.append(node_counter)
+        node_counter += 1
 
     def create_level(current_level_list, current_level) -> None:
+        nonlocal node_counter
+        node_counter = 0
         nonlocal is_end
         nonlocal levels
         # if not current_level_list pārbauda vai pēdējais padotais lists ir tukšs, un ja tas ir, tad iziet no funkcijas
@@ -75,8 +77,7 @@ def generate_game_tree(rock_n) -> list[list[Variables]]:
     node_counter = 0
     is_end = False
 
-    id0 = Variables(0, None, 0, 0, 0, 0, rock_n)
-    levels = [[id0]]
+    levels = [[Variables(0, None, 0, 0, 0, 0, rock_n)]]
     i = 0
 
     while True:
@@ -100,6 +101,9 @@ def main() -> None:  # Testēšanai
     n = int(input("Ar cik akmeņiem ģenerēt koku: "))
     game_tree = generate_game_tree(n)
     print_nodes(game_tree)
+
+    # Piekļūt jebkuram elementam iespējams ar game_tree[x][y]
+    # Kur x ir līmenis un y ir objekta indekss(0-...)
 
 
 if __name__ == '__main__':
