@@ -95,5 +95,7 @@ def generate_tree(number):
     #     for jj in levels[xx]:
     #         print(jj)
 
+    # Piekļūt jebkuram elementam iespējams ar levels[x][y]
+    # Kur x ir līmenis un y ir objekta indekss(0-...)
 
 generate_tree(30)
