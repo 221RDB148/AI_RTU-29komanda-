@@ -267,18 +267,31 @@ def main() -> None:
 
     # TODO Nomainīt pogas uz ttk tipa ar stilu
     rocks_chosen = tk.IntVar()
+    checkmark_bool = tk.BooleanVar()
+
+    f2_midframe_checkbox = ttk.Checkbutton(f2_midframe,
+                                           text="Bez apstiprināšanas",
+                                           variable=checkmark_bool,
+                                           onvalue=1,
+                                           offvalue=0,)
+
+    def inbetween_check(x) -> None:
+        rocks_chosen.set(x)
+        if checkmark_bool.get():
+            confirm_move(x)
+
     f2_midframe_button_left = tk.Button(f2_midframe,
                                         bg='#000000',
                                         fg='#f8f8f8',
                                         relief='flat',
                                         text="2 akmentiņi",
-                                        command=lambda: rocks_chosen.set(2))
+                                        command=lambda: inbetween_check(2))
     f2_midframe_button_right = tk.Button(f2_midframe,
                                          bg='#000000',
                                          fg='#f8f8f8',
                                          relief='flat',
                                          text="3 akmentiņi",
-                                         command=lambda: rocks_chosen.set(3))
+                                         command=lambda: inbetween_check(3))
     f2_midframe_button_confirm = tk.Button(f2_midframe,
                                            bg='#000000',
                                            fg='#f8f8f8',
@@ -327,6 +340,7 @@ def main() -> None:
     ttk.Label(f2_midframe, text="Vai").grid(row=1, column=1)
     f2_midframe_button_right.grid(row=1, column=2)
     f2_midframe_button_confirm.grid(row=2, column=1)
+    f2_midframe_checkbox.grid(row=2, column=2)
     f2_midframe_label_pastmoves.grid(row=3, column=1)
 
     # ## UI startup
