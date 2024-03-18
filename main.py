@@ -3,6 +3,12 @@ from tkinter import ttk
 from _tkinter import TclError
 from ttkthemes import ThemedTk
 from Linards_datu_struktura import generate_game_tree, print_nodes
+from testminmax import best_move as min_max
+
+
+# TODO Aizstāt pagaidu funkciju ar importētu īsto
+def alfa_beta(game_tree, total_rocks, p1, p2, player_n) -> int:
+    return 2
 
 
 class Player:
@@ -62,6 +68,11 @@ def main() -> None:
                                             f"Spēlētājs: {game_state.players[1].name}")
         game_state.turn.set(0)
         update_gamestatelabel()
+        if game_state.players[game_state.turn.get()].name != "Cilvēks":
+            f2_midframe_button_confirm.grid_remove()
+            f2_midframe_button_left.config(state='disabled')
+            f2_midframe_button_right.config(state='disabled')
+            f2_midframe_button_aimove.grid()
 
         f1.grid_remove()
         f2.grid(sticky='nwe')
@@ -154,9 +165,11 @@ def main() -> None:
                                       rocks_taken))
         # Pārbauda, vai spēle ir beigusies
         if game_state.totalrocks.get() < 2:
-            if game_state.players[0].score > game_state.players[1].score:
+            p1_finalscore = game_state.players[0].score + game_state.players[0].rocks
+            p2_finalscore = game_state.players[1].score + game_state.players[1].rocks
+            if p1_finalscore > p2_finalscore:
                 result = "1.spēlētājs uzvar"
-            elif game_state.players[0].score < game_state.players[1].score:
+            elif p2_finalscore > p1_finalscore:
                 result = "2.spēlētājs uzvar"
             else:
                 result = "Neizšķirts"
@@ -165,6 +178,7 @@ def main() -> None:
             f2_midframe_button_left.config(state='disabled')
             f2_midframe_button_right.config(state='disabled')
             f2_midframe_button_confirm.config(state='disabled')
+            f2_midframe_button_aimove.config(state='disabled')
 
         # Nomaina gājienu
         game_state.turn.set(turn + 1)
@@ -174,12 +188,35 @@ def main() -> None:
         update_statlabel()
         update_gamestatelabel()
 
-        # Atiestata pogas izvēli
+        # Nomaina pogu stāvokļus
+        if game_state.players[(turn + 1) % 2].name == 'Cilvēks':
+            f2_midframe_button_aimove.grid_remove()
+            f2_midframe_button_left.config(state='normal')
+            f2_midframe_button_right.config(state='normal')
+            f2_midframe_button_confirm.grid()
+        elif game_state.players[(turn + 1) % 2].name in ("Min-max algoritms", "Alfa-beta algoritms"):
+            f2_midframe_button_confirm.grid_remove()
+            f2_midframe_button_left.config(state='disabled')
+            f2_midframe_button_right.config(state='disabled')
+            f2_midframe_button_aimove.grid()
+
+        # Atiestata izvēles pogas vērtību
         rocks_chosen.set(0)
+
+    def ai_move(game_tree, turn) -> None:
+        rocks_taken = 0
+        algorithm = game_state.players[turn % 2].name
+        if algorithm == "Min-max algoritms":
+            rocks_taken = min_max(game_state.totalrocks.get(), game_state.players[0].score, game_state.players[1].score,
+                                  depth=100, is_maximizing=((game_state.turn.get() + 1) % 2))
+        elif algorithm == "Alfa-beta algoritms":
+            rocks_taken = alfa_beta(game_tree, game_state.totalrocks.get(), *game_state.players,
+                                    (game_state.turn.get() % 2))
+        confirm_move(rocks_taken)
 
     game_state = GameState()
     # --- Spēles loga izveide un uzstādīšana
-    root = ThemedTk(theme="arc")  # Izkomentēt šo un atkomentēt apakšējo, lai strādātu bez papilbibliotēkām
+    root = ThemedTk(theme="arc")  # Izkomentēt šo un atkomentēt apakšējo, lai strādātu bez papildbibliotēkām
     # root = tk.Tk()
 
     root.configure(bg='#f5f6f7')
@@ -210,8 +247,10 @@ def main() -> None:
     value_p1choice = tk.StringVar(root)
     f1_radio_p1 = ttk.Frame(f1)
     f1_radio_p1_0 = ttk.Radiobutton(f1_radio_p1, text="Cilvēks", variable=value_p1choice, value="Cilvēks")
-    f1_radio_p1_1 = ttk.Radiobutton(f1_radio_p1, text="Min-max algoritms", variable=value_p1choice, value="Min-max algoritms")
-    f1_radio_p1_2 = ttk.Radiobutton(f1_radio_p1, text="Alfa-beta algoritms", variable=value_p1choice, value="Alfa-beta algoritms")
+    f1_radio_p1_1 = ttk.Radiobutton(f1_radio_p1, text="Min-max algoritms", variable=value_p1choice,
+                                    value="Min-max algoritms")
+    f1_radio_p1_2 = ttk.Radiobutton(f1_radio_p1, text="Alfa-beta algoritms", variable=value_p1choice,
+                                    value="Alfa-beta algoritms")
     f1_label_p1error = ttk.Label(f1, text=" ", style='red.TLabel')
 
     f1_label_p2choice = ttk.Label(f1, text="Izvēlies otro spēlētāju:")
@@ -273,7 +312,7 @@ def main() -> None:
                                            text="Bez apstiprināšanas",
                                            variable=checkmark_bool,
                                            onvalue=1,
-                                           offvalue=0,)
+                                           offvalue=0)
 
     def inbetween_check(x) -> None:
         rocks_chosen.set(x)
@@ -292,12 +331,18 @@ def main() -> None:
                                          relief='flat',
                                          text="3 akmentiņi",
                                          command=lambda: inbetween_check(3))
-    f2_midframe_button_confirm = tk.Button(f2_midframe,
+    f2_midframe_button_confirm = tk.Button(f2_midframe,  # Poga, kas redzama, ja gājiens ir cilvēkam
                                            bg='#000000',
                                            fg='#f8f8f8',
                                            relief='flat',
                                            text="Apstiprināt gājienu →",
                                            command=lambda: confirm_move(rocks_chosen.get()))
+    f2_midframe_button_aimove = tk.Button(f2_midframe,  # Poga, lai liktu MI veikt gājienu
+                                          bg='#000000',
+                                          fg='#f8f8f8',
+                                          relief='flat',
+                                          text="Nākamais MI gājiens →",
+                                          command=lambda: ai_move(game_state.game_tree, game_state.turn.get()))
 
     game_state.text_pastmoves = tk.StringVar(value="Veikto gājienu saraksts:")
     f2_midframe_label_pastmoves = ttk.Label(f2_midframe, textvariable=game_state.text_pastmoves, justify='center')
@@ -339,6 +384,8 @@ def main() -> None:
     f2_midframe_button_left.grid(row=1, column=0)
     ttk.Label(f2_midframe, text="Vai").grid(row=1, column=1)
     f2_midframe_button_right.grid(row=1, column=2)
+    f2_midframe_button_aimove.grid(row=2, column=1)
+    f2_midframe_button_aimove.grid_remove()  # Iestata noklusējuma vietu, bet sākumā nerādīt
     f2_midframe_button_confirm.grid(row=2, column=1)
     f2_midframe_checkbox.grid(row=2, column=2)
     f2_midframe_label_pastmoves.grid(row=3, column=1)
