@@ -8,7 +8,12 @@ game_tree_start = generate_game_tree(akmeni)
 def minimax(game_tree, level, node_id, depth, is_maximizing):
     ai_move = None
     if depth == 0 or not game_tree[level][node_id].children:
-        return (game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks) - (game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks), ai_move
+        if level % 2 == 0:
+            return (game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks) - (
+                    game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks), ai_move
+        else:
+            return (game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks) - (
+                    game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks), ai_move
     if is_maximizing:
         max_eval = -float('inf')
         for node_id2 in game_tree[level][node_id].children:
@@ -29,19 +34,21 @@ def minimax(game_tree, level, node_id, depth, is_maximizing):
 
 max_depth = 15
 levels = 1
-#print(game_tree_start[0][0])
+# print(game_tree_start[0][0])
+# rock_buffer = game_tree_start[0][0].rocks
 move = minimax(game_tree_start, 0, 0, max_depth, True)[1]
-#print(move)
+# print("P1 takes", rock_buffer - move.rocks, " and moves =")
+# print(move)
 
 
 while True:
     if not move.children:
         break
-    rock_buffer = move.rocks
+    # rock_buffer = move.rocks
     move = minimax(game_tree_start, levels, move.node_id, max_depth, True)[1]
-    #if levels % 2 == 0:
+    # if levels % 2 == 0:
     #    print("P1 takes", rock_buffer - move.rocks, " and moves =")
-    #else:
+    # else:
     #    print("P2 takes", rock_buffer - move.rocks, "and moves =")
-    #print(move)
+    # print(move)
     levels += 1
