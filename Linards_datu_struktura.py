@@ -13,7 +13,7 @@ class Variables:
         return f"id:{self.node_id} {self.parents} {self.children} {self.p1_points} {self.p1_rocks} {self.p2_points} {self.p2_rocks} {self.rocks}"
 
 
-def generate_game_tree(rock_n) -> list[list[Variables]]:
+def generate_game_tree(rock_n):
     def check_connections(node_id, p1_points, p1_rocks, p2_points, p2_rocks, rocks, x):
         #   Funkcija, kas salīdzina padotā objekta vērtības ar visām pēdējā līmeņa eksistējošajām objektu vērtībām,
         #   un ja tās ir vienādas, tad tiek pierakstīti vecāki un node bērni
@@ -87,7 +87,7 @@ def generate_game_tree(rock_n) -> list[list[Variables]]:
         create_level(levels[-1], i)
         i += 1
 
-    return levels
+    return tuple(tuple(x) for x in levels)
 
 
 def print_nodes(levels) -> None:
