@@ -4,7 +4,7 @@ from _tkinter import TclError
 from ttkthemes import ThemedTk
 from Linards_datu_struktura import generate_game_tree, print_nodes
 from Linards_minmax import minimax as min_max
-from Linards_AlphaBeta import minimax as alpha_beta
+from Linards_AlphaBeta import alphabeta as alpha_beta
 
 
 # TODO Aizstāt pagaidu funkciju ar importētu īsto
@@ -328,6 +328,15 @@ def main() -> None:
         if checkmark_bool.get():
             confirm_move(x)
 
+    def ai_move_check() -> None:
+        if checkmark_bool.get():
+            while checkmark_bool.get():
+                if game_state.totalrocks.get() < 2:
+                    break
+                ai_move(game_state.game_tree, game_state.turn.get())
+        else:
+            ai_move(game_state.game_tree, game_state.turn.get())
+
     f2_midframe_button_left = tk.Button(f2_midframe,
                                         bg='#000000',
                                         fg='#f8f8f8',
@@ -351,7 +360,7 @@ def main() -> None:
                                           fg='#f8f8f8',
                                           relief='flat',
                                           text="Nākamais MI gājiens →",
-                                          command=lambda: ai_move(game_state.game_tree, game_state.turn.get()))
+                                          command=lambda: ai_move_check())
 
     game_state.text_pastmoves = tk.StringVar(value="Veikto gājienu saraksts:")
     f2_midframe_label_pastmoves = ttk.Label(f2_midframe, textvariable=game_state.text_pastmoves, justify='center')
