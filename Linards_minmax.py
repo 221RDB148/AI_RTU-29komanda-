@@ -1,11 +1,7 @@
 from Linards_datu_struktura import generate_game_tree
-# import time
+import time
 from math import inf
 from functools import lru_cache
-
-akmeni = 70
-
-game_tree_start = generate_game_tree(akmeni)
 
 
 @lru_cache(10000)
@@ -35,27 +31,38 @@ def minimax(game_tree, level, node_id, depth, is_maximizing):
         return min_eval, ai_move
 
 
-max_depth = 50
-levels = 0
-# start = time.time()
-# print(game_tree_start[0][0])
-# rock_buffer = game_tree_start[0][0].rocks
-move = game_tree_start[0][0]
-# print("P1 takes", rock_buffer - move.rocks, " and moves =")
-# print(move)
+def main():
+    akmeni = 70
+    game_tree_start = generate_game_tree(akmeni)
+    max_depth = 50
+    levels = 0
+    start = time.time()
+    print(game_tree_start[0][0])
+    rock_buffer = game_tree_start[0][0].rocks
+    move = game_tree_start[0][0]
+    print("P1 takes", rock_buffer - move.rocks, " and moves =")
+    print(move)
+    Used_moves = []
+
+    while 1:
+        if not move.children:
+            break
+        rock_buffer = move.rocks
+        move = minimax(game_tree_start, levels, move.node_id, max_depth, True)[1]
+        if levels % 2 == 0:
+            print("P1 takes", rock_buffer - move.rocks, " and moves =")
+        else:
+            print("P2 takes", rock_buffer - move.rocks, "and moves =")
+        print(move)
+        Used_moves.append(move)
+        levels += 1
+
+    print(move.p1_points + move.p1_rocks, move.p2_points + move.p2_rocks)
+    print(len(Used_moves))
+    end = time.time()
+    print("___________________")
+    print(end - start)
 
 
-while 1:
-    if not move.children:
-        break
-    # rock_buffer = move.rocks
-    move = minimax(game_tree_start, levels, move.node_id, max_depth, True)[1]
-    # if levels % 2 == 0:
-    #    print("P1 takes", rock_buffer - move.rocks, " and moves =")
-    # else:
-    #    print("P2 takes", rock_buffer - move.rocks, "and moves =")
-    # print(move)
-    levels += 1
-# end = time.time()
-# print("___________________")
-# print(end - start)
+if __name__ == '__main__':
+    main()
