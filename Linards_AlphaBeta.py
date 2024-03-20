@@ -11,7 +11,7 @@ game_tree_start = generate_game_tree(akmeni)
 @lru_cache(10000)
 def minimax(game_tree, level, node_id, depth, is_maximizing, alpha=-math.inf, beta=math.inf):
     if depth == 0 or not game_tree[level][node_id].children:
-        if level % 2 == 0:
+        if level % 2 != 0:
             return (game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks) - (
                     game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks), None
         else:
