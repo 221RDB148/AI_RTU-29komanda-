@@ -1,23 +1,22 @@
 from Linards_datu_struktura import generate_game_tree
 # import time
 from math import inf
-from functools import cache
+from functools import lru_cache
 
 akmeni = 70
 
 game_tree_start = generate_game_tree(akmeni)
 
 
-@cache
+@lru_cache(10000)
 def minimax(game_tree, level, node_id, depth, is_maximizing):
-    ai_move = None
     if depth == 0 or not game_tree[level][node_id].children:
         if level % 2 == 0:
             return (game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks) - (
-                    game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks), ai_move
+                    game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks), None
         else:
             return (game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks) - (
-                    game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks), ai_move
+                    game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks), None
     if is_maximizing:
         max_eval = -inf
         for node_id2 in game_tree[level][node_id].children:
@@ -36,12 +35,12 @@ def minimax(game_tree, level, node_id, depth, is_maximizing):
         return min_eval, ai_move
 
 
-max_depth = 30
-levels = 1
+max_depth = 50
+levels = 0
 # start = time.time()
 # print(game_tree_start[0][0])
 # rock_buffer = game_tree_start[0][0].rocks
-move = minimax(game_tree_start, 0, 0, max_depth, True)[1]
+move = game_tree_start[0][0]
 # print("P1 takes", rock_buffer - move.rocks, " and moves =")
 # print(move)
 
