@@ -3,7 +3,8 @@ from tkinter import ttk
 from _tkinter import TclError
 from ttkthemes import ThemedTk
 from Linards_datu_struktura import generate_game_tree, print_nodes
-from testminmax import best_move as min_max
+from Linards_minmax import minimax as min_max
+from Linards_AlphaBeta import minimax as alpha_beta
 
 
 # TODO Aizstāt pagaidu funkciju ar importētu īsto
@@ -36,6 +37,8 @@ class GameState:
         self.text_pastmoves = None
         self.game_tree = None
         self.past_moves = []
+        self.rock_buffer = None
+        self.node_id = 0
 
     def reset(self) -> None:
         self.players[0].reset()
@@ -47,6 +50,8 @@ class GameState:
         self.text_pastmoves.set("Veikto gājienu saraksts:")
         self.game_tree = None
         self.past_moves = []
+        self.rock_buffer = None
+        self.node_id = 0
 
 
 def main() -> None:
@@ -83,6 +88,7 @@ def main() -> None:
         f2_midframe_button_left.config(state='normal')
         f2_midframe_button_right.config(state='normal')
         f2_midframe_button_confirm.config(state='normal')
+        f2_midframe_button_aimove.config(state='normal')
         f1.grid()
 
     def has_errors() -> bool:
@@ -102,7 +108,7 @@ def main() -> None:
 
         try:
             n = game_state.totalrocks.get()
-            if not 50 <= n <= 70:
+            if not 0 <= n <= 70:
                 # # # Atkomentēt lai automātiski ieliktu robežās # # #
                 # if n < 50:
                 #     value_totalrocks.set(50)
@@ -205,13 +211,16 @@ def main() -> None:
 
     def ai_move(game_tree, turn) -> None:
         rocks_taken = 0
+
         algorithm = game_state.players[turn % 2].name
         if algorithm == "Min-max algoritms":
-            rocks_taken = min_max(game_state.totalrocks.get(), game_state.players[0].score, game_state.players[1].score,
-                                  depth=100, is_maximizing=((game_state.turn.get() + 1) % 2))
+            move = min_max(game_tree, game_state.turn.get(), game_state.node_id, 70, True)[1]
+            game_state.node_id = move.node_id
+            rocks_taken = game_state.totalrocks.get() - move.rocks
         elif algorithm == "Alfa-beta algoritms":
-            rocks_taken = alfa_beta(game_tree, game_state.totalrocks.get(), *game_state.players,
-                                    (game_state.turn.get() % 2))
+            move = alpha_beta(game_tree, game_state.turn.get(), game_state.node_id, 70, True)[1]
+            game_state.node_id = move.node_id
+            rocks_taken = game_state.totalrocks.get() - move.rocks
         confirm_move(rocks_taken)
 
     game_state = GameState()
