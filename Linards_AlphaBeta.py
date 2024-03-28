@@ -1,16 +1,27 @@
 from Linards_datu_struktura import generate_game_tree
 import math
 import time
-from functools import lru_cache
+
+memo = {}
 
 
-@lru_cache(10000)
 def alphabeta(game_tree, level, node_id, depth, is_maximizing, start_level, alpha=-math.inf, beta=math.inf):
+    if (level, node_id, start_level, is_maximizing) in memo:
+        return memo[(level, node_id, start_level, is_maximizing)]
+
     if depth == 0 or not game_tree[level][node_id].children:
         if start_level % 2 != 0:
+            memo[(level, node_id, start_level, is_maximizing)] = ((game_tree[level][node_id].p2_points +
+                                                                   game_tree[level][node_id].p2_rocks) - (
+                                                                    game_tree[level][node_id].p1_points +
+                                                                    game_tree[level][node_id].p1_rocks), None)
             return (game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks) - (
                     game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks), None
         else:
+            memo[(level, node_id, start_level, is_maximizing)] = ((game_tree[level][node_id].p1_points +
+                                                                   game_tree[level][node_id].p1_rocks) - (
+                                                                    game_tree[level][node_id].p2_points +
+                                                                    game_tree[level][node_id].p2_rocks), None)
             return (game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks) - (
                     game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks), None
     if is_maximizing:
@@ -23,6 +34,7 @@ def alphabeta(game_tree, level, node_id, depth, is_maximizing, start_level, alph
             alpha = max(alpha, max_eval)
             if beta <= alpha:
                 break
+        memo[(level, node_id, start_level, is_maximizing)] = (max_eval, ai_move)
         return max_eval, ai_move
     else:
         min_eval = math.inf
@@ -34,11 +46,12 @@ def alphabeta(game_tree, level, node_id, depth, is_maximizing, start_level, alph
             beta = min(beta, min_eval)
             if beta <= alpha:
                 break
+        memo[(level, node_id, start_level, is_maximizing)] = (min_eval, ai_move)
         return min_eval, ai_move
 
 
 def main():
-    akmeni = 2
+    akmeni = 70
     game_tree_start = generate_game_tree(akmeni)
     max_depth = 70
     levels = 0
@@ -51,7 +64,7 @@ def main():
         if not move.children:
             break
         rock_buffer = move.rocks
-        move = alphabeta(game_tree_start, levels, move.node_id, max_depth, True, levels)[1]
+        move = alphabeta(game_tree_start, levels, move.node_id, max_depth, True, levels % 2)[1]
         if levels % 2 == 0:
             print("P1 takes", rock_buffer - move.rocks, " and moves =")
         else:
