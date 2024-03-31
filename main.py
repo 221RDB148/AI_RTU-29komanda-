@@ -70,11 +70,11 @@ def main() -> None:
         if game_state.players[0].name != "Cilvēks":
             if game_state.players[1].name != "Cilvēks":
                 f2_aibuttons_allmoves.grid()  # Ļaut MI veikt visus gājienus tikai tad, ja abi spēlētāji ir MI
-            f2_userbtns.grid_remove()
-            f2_aibtns.grid()
+            f2_userbuttons.grid_remove()
+            f2_aibuttons.grid()
         else:
-            f2_userbtns.grid()
-            f2_aibtns.grid_remove()
+            f2_userbuttons.grid()
+            f2_aibuttons.grid_remove()
             f2_aibuttons_allmoves.grid_remove()
 
         f1.grid_remove()
@@ -188,11 +188,11 @@ def main() -> None:
 
         # Nomaina pogu stāvokļus
         if game_state.players[(turn + 1) % 2].name == "Cilvēks":
-            f2_userbtns.grid()
-            f2_aibtns.grid_remove()
+            f2_userbuttons.grid()
+            f2_aibuttons.grid_remove()
         else:
-            f2_userbtns.grid_remove()
-            f2_aibtns.grid()
+            f2_userbuttons.grid_remove()
+            f2_aibuttons.grid()
 
     def ai_move(game_tree, turn, all_moves=False) -> None:
         rocks_taken = 0
@@ -303,18 +303,18 @@ def main() -> None:
     f2_midframe_label_totalrocks = ttk.Label(f2_midframe, textvariable=game_state.gamestatelabel, justify="center")
 
     # TODO Nomainīt pogas uz ttk tipa ar stilu
-    f2_userbtns = tk.Frame(f2_midframe)
-    f2_aibtns = tk.Frame(f2_midframe)
-    f2_userbuttons_separator = ttk.Label(f2_userbtns, text="Vai")
+    f2_userbuttons = tk.Frame(f2_midframe)
+    f2_aibuttons = tk.Frame(f2_midframe)
+    f2_userbuttons_separator = ttk.Label(f2_userbuttons, text="Vai")
 
     # Cilvēka pogas akmentiņu izvēlei
-    f2_userbuttons_left = tk.Button(f2_userbtns,
+    f2_userbuttons_left = tk.Button(f2_userbuttons,
                                     bg='#000000',
                                     fg='#f8f8f8',
                                     relief='flat',
                                     text="2 akmentiņi",
                                     command=lambda: confirm_move(2))
-    f2_userbuttons_right = tk.Button(f2_userbtns,
+    f2_userbuttons_right = tk.Button(f2_userbuttons,
                                      bg='#000000',
                                      fg='#f8f8f8',
                                      relief='flat',
@@ -322,14 +322,14 @@ def main() -> None:
                                      command=lambda: confirm_move(3))
 
     # Pogas, lai liktu MI veikt gājienus
-    f2_aibuttons_aimove = tk.Button(f2_aibtns,  # Poga, lai liktu MI veikt gājienu
+    f2_aibuttons_aimove = tk.Button(f2_aibuttons,  # Poga, lai liktu MI veikt gājienu
                                     bg='#000000',
                                     fg='#f8f8f8',
                                     relief='flat',
                                     text="Veikt 1 MI gājienu →",
                                     command=lambda: ai_move(game_state.game_tree, game_state.turn.get()))
 
-    f2_aibuttons_allmoves = tk.Button(f2_aibtns,
+    f2_aibuttons_allmoves = tk.Button(f2_aibuttons,
                                       bg='#000000',
                                       fg='#f8f8f8',
                                       relief='flat',
@@ -382,8 +382,8 @@ def main() -> None:
     f2_label_stats_p2.grid(row=1, column=2, sticky='ne')
 
     f2_midframe_label_totalrocks.grid(row=0, column=1)
-    f2_aibtns.grid(row=1, column=1)
-    f2_userbtns.grid(row=1, column=1)
+    f2_aibuttons.grid(row=1, column=1)
+    f2_userbuttons.grid(row=1, column=1)
     f2_midframe_label_pastmoves.grid(row=3, column=1)
 
     # ## UI startup
