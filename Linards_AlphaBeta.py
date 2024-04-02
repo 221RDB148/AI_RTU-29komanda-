@@ -6,19 +6,19 @@ memo = {}
 
 
 def alphabeta(game_tree, level, node_id, depth, is_maximizing, start_level, alpha=-math.inf, beta=math.inf):
-    if (level, node_id, start_level, is_maximizing) in memo:
-        return memo[(level, node_id, start_level, is_maximizing)]
+    if (level, node_id, start_level, is_maximizing, depth % 2) in memo:
+        return memo[(level, node_id, start_level, is_maximizing, depth % 2)]
 
     if depth == 0 or not game_tree[level][node_id].children:
         if start_level % 2 != 0:
-            memo[(level, node_id, start_level, is_maximizing)] = ((game_tree[level][node_id].p2_points +
+            memo[(level, node_id, start_level, is_maximizing, depth % 2)] = ((game_tree[level][node_id].p2_points +
                                                                    game_tree[level][node_id].p2_rocks) - (
                                                                     game_tree[level][node_id].p1_points +
                                                                     game_tree[level][node_id].p1_rocks), None)
             return (game_tree[level][node_id].p2_points + game_tree[level][node_id].p2_rocks) - (
                     game_tree[level][node_id].p1_points + game_tree[level][node_id].p1_rocks), None
         else:
-            memo[(level, node_id, start_level, is_maximizing)] = ((game_tree[level][node_id].p1_points +
+            memo[(level, node_id, start_level, is_maximizing, depth % 2)] = ((game_tree[level][node_id].p1_points +
                                                                    game_tree[level][node_id].p1_rocks) - (
                                                                     game_tree[level][node_id].p2_points +
                                                                     game_tree[level][node_id].p2_rocks), None)
@@ -34,7 +34,7 @@ def alphabeta(game_tree, level, node_id, depth, is_maximizing, start_level, alph
             alpha = max(alpha, max_eval)
             if beta <= alpha:
                 break
-        memo[(level, node_id, start_level, is_maximizing)] = (max_eval, ai_move)
+        memo[(level, node_id, start_level, is_maximizing, depth % 2)] = (max_eval, ai_move)
         return max_eval, ai_move
     else:
         min_eval = math.inf
@@ -46,7 +46,7 @@ def alphabeta(game_tree, level, node_id, depth, is_maximizing, start_level, alph
             beta = min(beta, min_eval)
             if beta <= alpha:
                 break
-        memo[(level, node_id, start_level, is_maximizing)] = (min_eval, ai_move)
+        memo[(level, node_id, start_level, is_maximizing, depth % 2)] = (min_eval, ai_move)
         return min_eval, ai_move
 
 
