@@ -5,6 +5,11 @@ from math import inf
 memo = {}
 
 
+def reset_memo():
+    global memo
+    memo = {}
+
+
 def minimax(game_tree, level, node_id, depth, is_maximizing, start_level):
     if (level, node_id, start_level, is_maximizing, depth % 2) in memo:
         return memo[(level, node_id, start_level, is_maximizing, depth % 2)]

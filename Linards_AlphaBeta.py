@@ -5,6 +5,11 @@ import time
 memo = {}
 
 
+def reset_memo():
+    global memo
+    memo = {}
+
+
 def alphabeta(game_tree, level, node_id, depth, is_maximizing, start_level, alpha=-math.inf, beta=math.inf):
     if (level, node_id, start_level, is_maximizing, depth % 2) in memo:
         return memo[(level, node_id, start_level, is_maximizing, depth % 2)]
