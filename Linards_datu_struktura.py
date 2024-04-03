@@ -9,24 +9,27 @@ class Variables:
         self.p2_rocks = p2_rocks
         self.rocks = rocks
 
+    # Nomaina kā tiek izvadīts print(object), mainās tikai vizuāli
     def __str__(self):
         return f"id:{self.node_id} {self.parents} {self.children} {self.p1_points} {self.p1_rocks} {self.p2_points} {self.p2_rocks} {self.rocks}"
 
 
 def generate_game_tree(rock_n):
-    def check_connections(node_id, p1_points, p1_rocks, p2_points, p2_rocks, rocks, x):
+    def check_connections(node_id, p1_points, p1_rocks, p2_points, p2_rocks, rocks, current_level):
         #   Funkcija, kas salīdzina padotā objekta vērtības ar visām pēdējā līmeņa eksistējošajām objektu vērtībām,
         #   un ja tās ir vienādas, tad tiek pierakstīti vecāki un node bērni
         nonlocal node_counter
 
-        for xxx in levels[-1]:
-            if xxx.p1_points == p1_points and xxx.p1_rocks == p1_rocks and xxx.p2_points == p2_points and xxx.p2_rocks == p2_rocks and xxx.rocks == rocks:
-                xxx.parents.append(node_id)
-                x.children.append(xxx.node_id)
+        for latest_level in levels[-1]:
+            if (latest_level.p1_points == p1_points and latest_level.p1_rocks == p1_rocks and
+                    latest_level.p2_points == p2_points and latest_level.p2_rocks == p2_rocks and
+                    latest_level.rocks == rocks):
+                latest_level.parents.append(node_id)
+                current_level.children.append(latest_level.node_id)
                 return
 
         levels[-1].append(Variables(node_counter, node_id, p1_points, p1_rocks, p2_points, p2_rocks, rocks))
-        x.children.append(node_counter)
+        current_level.children.append(node_counter)
         node_counter += 1
 
     def create_level(current_level_list, current_level) -> None:
@@ -41,7 +44,7 @@ def generate_game_tree(rock_n):
             return
         # Tiek pievienots tukšs lists pie levels
         levels.append([])
-        # Tiek iets cauri listam, kas satur objektus, kas ir x
+        # Tiek iets cauri listam, kas satur objektus, kas ir x un veikti visi iespējamie atļautie gājieni
         for x in current_level_list:
             if x.rocks - 2 >= 0:
                 if (x.rocks - 2) % 2 == 0:
@@ -77,9 +80,11 @@ def generate_game_tree(rock_n):
     node_counter = 0
     is_end = False
 
+    # Tiek izveidots pirmais sākuma elements, no kura tiks ģenerēti pārējie gājieni
     levels = [[Variables(0, None, 0, 0, 0, 0, rock_n)]]
     i = 1
 
+    # Cikls, kas veidi datu struktūru līmeni pa līmenim, līdz pēdējais lists ir tukšs, tad tas beidz darbu
     while True:
         if is_end:
             print("End")
@@ -87,6 +92,7 @@ def generate_game_tree(rock_n):
         create_level(levels[-1], i)
         i += 1
 
+    # Pārvērš beigās iegūto list of list par tuple of tuples
     return tuple(tuple(x) for x in levels)
 
 

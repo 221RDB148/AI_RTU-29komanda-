@@ -2,10 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 from _tkinter import TclError
 from ttkthemes import ThemedTk
-from Linards_datu_struktura import generate_game_tree, print_nodes
-from Linards_minmax import minimax, reset_memo as reset_memo_minmax
-from Linards_AlphaBeta import alphabeta, reset_memo as reset_memo_alphabeta
+from minmax import best_move as min_max
+from minmax_with_ab import best_move as alfa_beta
 
+
+# TODO Aizstāt pagaidu funkciju ar importētu īsto
 
 class Player:
 
@@ -32,7 +33,6 @@ class GameState:
         self.text_pastmoves = None
         self.game_tree = None
         self.past_moves = []
-        self.node_id = 0
 
     def reset(self) -> None:
         self.players[0].reset()
@@ -44,14 +44,14 @@ class GameState:
         self.text_pastmoves.set("Veikto gājienu saraksts:")
         self.game_tree = None
         self.past_moves = []
-        self.node_id = 0
 
 
 def main() -> None:
+
     def start_game() -> None:
         if has_errors() is True:
             return
-        game_state.game_tree = generate_game_tree(game_state.totalrocks.get())
+        #game_state.game_tree = generate_game_tree(game_state.totalrocks.get())
         # print_nodes(game_state.game_tree)  # Testēšanai
         game_state.players[0].name = value_p1choice.get()
         game_state.players[1].name = value_p2choice.get()
@@ -65,15 +65,11 @@ def main() -> None:
                                             f"Spēlētājs: {game_state.players[1].name}")
         game_state.turn.set(0)
         update_gamestatelabel()
-        if game_state.players[0].name != "Cilvēks":
-            if game_state.players[1].name != "Cilvēks":
-                f2_aibuttons_allmoves.grid()  # Ļaut MI veikt visus gājienus tikai tad, ja abi spēlētāji ir MI
-            f2_userbuttons.grid_remove()
-            f2_aibuttons.grid()
-        else:
-            f2_userbuttons.grid()
-            f2_aibuttons.grid_remove()
-            f2_aibuttons_allmoves.grid_remove()
+        if game_state.players[game_state.turn.get()].name != "Cilvēks":
+            f2_midframe_button_confirm.grid_remove()
+            f2_midframe_button_left.config(state='disabled')
+            f2_midframe_button_right.config(state='disabled')
+            f2_midframe_button_aimove.grid()
 
         f1.grid_remove()
         f2.grid(sticky='nwe')
@@ -81,13 +77,10 @@ def main() -> None:
     def reset_game() -> None:
         f2.grid_remove()
         game_state.reset()
-        f2_userbuttons_left.config(state='normal')
-        f2_userbuttons_right.config(state='normal')
-        f2_aibuttons_aimove.config(state='normal')
-        f2_aibuttons_allmoves.config(state='normal')
+        f2_midframe_button_left.config(state='normal')
+        f2_midframe_button_right.config(state='normal')
+        f2_midframe_button_confirm.config(state='normal')
         f1.grid()
-        reset_memo_minmax()
-        reset_memo_alphabeta()
 
     def has_errors() -> bool:
         has_error = False
@@ -106,7 +99,13 @@ def main() -> None:
 
         try:
             n = game_state.totalrocks.get()
-            if not 50 <= n <= 70:  # ! Var nomainīt mazāko uz 0, lai testētu ar mazāk akmeņiem
+            if not 10 <= n <= 70:
+                # # # Atkomentēt lai automātiski ieliktu robežās # # #
+                # if n < 50:
+                #     value_totalrocks.set(50)
+                # elif n > 70:
+                #     value_totalrocks.set(70)
+                # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                 f1_label_totalrockserror.config(text="Skaitlim jābūt norādītajā intervālā")
                 has_error = True
             else:
@@ -141,7 +140,7 @@ def main() -> None:
 
     def update_pastmovelabel() -> None:
         newtext = "Veikto gājienu saraksts:\n"
-        for move in game_state.past_moves[-20:]:  # Parāda pēdējos 20 gājienus
+        for move in game_state.past_moves[-10:]:  # Parāda pēdējos 10 gājienus
             newtext += f"{move[0]}- {move[1] + 1}.spēlētājs, {move[2]} akmentiņi\n"
         game_state.text_pastmoves.set(newtext)
 
@@ -173,10 +172,10 @@ def main() -> None:
                 result = "Neizšķirts"
             game_state.status.set(f"Rezultāts: {result}!")
 
-            f2_userbuttons_left.config(state='disabled')
-            f2_userbuttons_right.config(state='disabled')
-            f2_aibuttons_aimove.config(state='disabled')
-            f2_aibuttons_allmoves.config(state='disabled')
+            f2_midframe_button_left.config(state='disabled')
+            f2_midframe_button_right.config(state='disabled')
+            f2_midframe_button_confirm.config(state='disabled')
+            f2_midframe_button_aimove.config(state='disabled')
 
         # Nomaina gājienu
         game_state.turn.set(turn + 1)
@@ -187,29 +186,30 @@ def main() -> None:
         update_gamestatelabel()
 
         # Nomaina pogu stāvokļus
-        if game_state.players[(turn + 1) % 2].name == "Cilvēks":
-            f2_userbuttons.grid()
-            f2_aibuttons.grid_remove()
-        else:
-            f2_userbuttons.grid_remove()
-            f2_aibuttons.grid()
+        if game_state.players[(turn + 1) % 2].name == 'Cilvēks':
+            f2_midframe_button_aimove.grid_remove()
+            f2_midframe_button_left.config(state='normal')
+            f2_midframe_button_right.config(state='normal')
+            f2_midframe_button_confirm.grid()
+        elif game_state.players[(turn + 1) % 2].name in ("Min-max algoritms", "Alfa-beta algoritms"):
+            f2_midframe_button_confirm.grid_remove()
+            f2_midframe_button_left.config(state='disabled')
+            f2_midframe_button_right.config(state='disabled')
+            f2_midframe_button_aimove.grid()
 
-    def ai_move(game_tree, turn, all_moves=False) -> None:
+        # Atiestata izvēles pogas vērtību
+        rocks_chosen.set(0)
+
+    def ai_move(game_tree, turn) -> None:
         rocks_taken = 0
         algorithm = game_state.players[turn % 2].name
         if algorithm == "Min-max algoritms":
-            move = minimax(game_tree, game_state.turn.get(), game_state.node_id, 70, True, game_state.turn.get() % 2)[1]
-            game_state.node_id = move.node_id
-            rocks_taken = game_state.totalrocks.get() - move.rocks
+            rocks_taken = min_max(game_state.totalrocks.get(), game_state.players[0].score, game_state.players[1].score,
+                                  depth=game_state.totalrocks.get()/2, is_maximizing=((game_state.turn.get() + 1) % 2))
         elif algorithm == "Alfa-beta algoritms":
-            move = alphabeta(game_tree, game_state.turn.get(), game_state.node_id, 70, True, game_state.turn.get() % 2)[1]
-            game_state.node_id = move.node_id
-            rocks_taken = game_state.totalrocks.get() - move.rocks
+            rocks_taken = alfa_beta(game_state.totalrocks.get(), game_state.players[0].score, game_state.players[1].score,
+                                  depth=game_state.totalrocks.get()/2, is_maximizing=((game_state.turn.get() + 1) % 2))
         confirm_move(rocks_taken)
-
-        # Rekursija, lai automātiski veiktu visus pārējos gājienus
-        if all_moves and game_state.totalrocks.get() >= 2:
-            ai_move(game_tree, turn, all_moves=True)
 
     game_state = GameState()
     # --- Spēles loga izveide un uzstādīšana
@@ -235,7 +235,6 @@ def main() -> None:
                    width=800,
                    height=550)
 
-    f2.grid_columnconfigure((0, 2), minsize=180)
     f2.columnconfigure(1, weight=1)  # Centrēt spēles konteineri, paplašināt horizontāli līdz ar logu
 
     # - Sākuma lapas elemeti
@@ -254,7 +253,8 @@ def main() -> None:
     f1_label_p2choice = ttk.Label(f1, text="Izvēlies otro spēlētāju:")
     value_p2choice = tk.StringVar(root)
     f1_radio_p2 = ttk.Frame(f1)
-    f1_radio_p2_0 = ttk.Radiobutton(f1_radio_p2, text="Cilvēks", variable=value_p2choice, value="Cilvēks")
+    f1_radio_p2_0 = ttk.Radiobutton(f1_radio_p2, text="Cilvēks", variable=value_p2choice, value="Cilvēks",
+                                    state="disabled")
     f1_radio_p2_1 = ttk.Radiobutton(f1_radio_p2, text="Min-max algoritms", variable=value_p2choice,
                                     value="Min-max algoritms")
     f1_radio_p2_2 = ttk.Radiobutton(f1_radio_p2, text="Alfa-beta algoritms", variable=value_p2choice,
@@ -264,8 +264,8 @@ def main() -> None:
     f1_span_totalrocks = ttk.Frame(f1)
     f1_label_totalrocks = ttk.Label(f1_span_totalrocks, text="Ieraksti akmentiņu skaitu (no 50 līdz 70):")
     game_state.totalrocks = tk.IntVar(root, 60)
-    f1_input_totalrocks = ttk.Spinbox(f1_span_totalrocks, from_=50, to=70, width=3, textvariable=game_state.totalrocks)
-    f1_slider_totalrocks = ttk.Scale(f1_span_totalrocks, from_=50, to=70, length=150, variable=game_state.totalrocks,
+    f1_input_totalrocks = ttk.Spinbox(f1_span_totalrocks, from_=10, to=70, width=3, textvariable=game_state.totalrocks)
+    f1_slider_totalrocks = ttk.Scale(f1_span_totalrocks, from_=10, to=70, length=150, variable=game_state.totalrocks,
                                      command=update_value_totalrocks)
 
     f1_label_totalrockserror = ttk.Label(f1, text=" ", style='red.TLabel')
@@ -302,38 +302,44 @@ def main() -> None:
     f2_midframe_label_totalrocks = ttk.Label(f2_midframe, textvariable=game_state.gamestatelabel, justify="center")
 
     # TODO Nomainīt pogas uz ttk tipa ar stilu
-    f2_userbuttons = tk.Frame(f2_midframe)
-    f2_aibuttons = tk.Frame(f2_midframe)
-    f2_userbuttons_separator = ttk.Label(f2_userbuttons, text="Vai")
+    rocks_chosen = tk.IntVar()
+    checkmark_bool = tk.BooleanVar()
 
-    # Cilvēka pogas akmentiņu izvēlei
-    f2_userbuttons_left = tk.Button(f2_userbuttons,
-                                    bg='#000000',
-                                    fg='#f8f8f8',
-                                    relief='flat',
-                                    text="2 akmentiņi",
-                                    command=lambda: confirm_move(2))
-    f2_userbuttons_right = tk.Button(f2_userbuttons,
-                                     bg='#000000',
-                                     fg='#f8f8f8',
-                                     relief='flat',
-                                     text="3 akmentiņi",
-                                     command=lambda: confirm_move(3))
+    f2_midframe_checkbox = ttk.Checkbutton(f2_midframe,
+                                           text="Bez apstiprināšanas",
+                                           variable=checkmark_bool,
+                                           onvalue=1,
+                                           offvalue=0)
 
-    # Pogas, lai liktu MI veikt gājienus
-    f2_aibuttons_aimove = tk.Button(f2_aibuttons,  # Poga, lai liktu MI veikt gājienu
-                                    bg='#000000',
-                                    fg='#f8f8f8',
-                                    relief='flat',
-                                    text="Veikt 1 MI gājienu →",
-                                    command=lambda: ai_move(game_state.game_tree, game_state.turn.get()))
+    def inbetween_check(x) -> None:
+        rocks_chosen.set(x)
+        if checkmark_bool.get():
+            confirm_move(x)
 
-    f2_aibuttons_allmoves = tk.Button(f2_aibuttons,
-                                      bg='#000000',
-                                      fg='#f8f8f8',
-                                      relief='flat',
-                                      text="Veikt visus MI gājienus →",
-                                      command=lambda: ai_move(game_state.game_tree, game_state.turn.get(), True))
+    f2_midframe_button_left = tk.Button(f2_midframe,
+                                        bg='#000000',
+                                        fg='#f8f8f8',
+                                        relief='flat',
+                                        text="2 akmentiņi",
+                                        command=lambda: inbetween_check(2))
+    f2_midframe_button_right = tk.Button(f2_midframe,
+                                         bg='#000000',
+                                         fg='#f8f8f8',
+                                         relief='flat',
+                                         text="3 akmentiņi",
+                                         command=lambda: inbetween_check(3))
+    f2_midframe_button_confirm = tk.Button(f2_midframe,  # Poga, kas redzama, ja gājiens ir cilvēkam
+                                           bg='#000000',
+                                           fg='#f8f8f8',
+                                           relief='flat',
+                                           text="Apstiprināt gājienu →",
+                                           command=lambda: confirm_move(rocks_chosen.get()))
+    f2_midframe_button_aimove = tk.Button(f2_midframe,  # Poga, lai liktu MI veikt gājienu
+                                          bg='#000000',
+                                          fg='#f8f8f8',
+                                          relief='flat',
+                                          text="Nākamais MI gājiens →",
+                                          command=lambda: ai_move(game_state.game_tree, game_state.turn.get()))
 
     game_state.text_pastmoves = tk.StringVar(value="Veikto gājienu saraksts:")
     f2_midframe_label_pastmoves = ttk.Label(f2_midframe, textvariable=game_state.text_pastmoves, justify='center')
@@ -363,15 +369,6 @@ def main() -> None:
     f1_label_totalrockserror.grid(row=8, column=0, sticky='w')
     f1_button_start.grid(row=9, column=0)
 
-    # - f2 cilvēka gājiena izvēlnes elementi
-    f2_userbuttons_left.grid(row=1, column=0)
-    f2_userbuttons_separator.grid(row=1, column=1, padx=10)
-    f2_userbuttons_right.grid(row=1, column=2)
-
-    # - f2 MI gājiena izvēlnes elementi
-    f2_aibuttons_aimove.grid(row=2, column=1)
-    f2_aibuttons_allmoves.grid(row=2, column=2, padx=(10, 0))
-
     # - f2 elementi
     f2_button_newgame.grid(row=0, column=0, sticky='nw')
     f2_label_title.grid(row=0, column=1, sticky='n')
@@ -381,8 +378,13 @@ def main() -> None:
     f2_label_stats_p2.grid(row=1, column=2, sticky='ne')
 
     f2_midframe_label_totalrocks.grid(row=0, column=1)
-    f2_aibuttons.grid(row=1, column=1)
-    f2_userbuttons.grid(row=1, column=1)
+    f2_midframe_button_left.grid(row=1, column=0)
+    ttk.Label(f2_midframe, text="Vai").grid(row=1, column=1)
+    f2_midframe_button_right.grid(row=1, column=2)
+    f2_midframe_button_aimove.grid(row=2, column=1)
+    f2_midframe_button_aimove.grid_remove()  # Iestata noklusējuma vietu, bet sākumā nerādīt
+    f2_midframe_button_confirm.grid(row=2, column=1)
+    f2_midframe_checkbox.grid(row=2, column=2)
     f2_midframe_label_pastmoves.grid(row=3, column=1)
 
     # ## UI startup
