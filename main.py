@@ -73,7 +73,6 @@ def main() -> None:
         else:
             f2_userbuttons.grid()
             f2_aibuttons.grid_remove()
-            f2_aibuttons_allmoves.grid_remove()
 
         f1.grid_remove()
         f2.grid(sticky='nwe')
@@ -85,6 +84,7 @@ def main() -> None:
         f2_userbuttons_right.config(state='normal')
         f2_aibuttons_aimove.config(state='normal')
         f2_aibuttons_allmoves.config(state='normal')
+        f2_aibuttons_allmoves.grid_remove()
         f1.grid()
         reset_memo_minmax()
         reset_memo_alphabeta()
@@ -157,12 +157,25 @@ def main() -> None:
         else:
             game_state.players[(1 + turn) % 2].score += 2  # Pievieno 2 punktus pretiniekam, jo ir pāra akmentiņi
 
+        # Manuāli atrast un piešķirt node_id, kad gājienu veic cilvēks
+        if (game_state.players[0].name == "Cilvēks") ^ (game_state.players[1].name == "Cilvēks"):
+            for next_level_node in game_state.game_tree[turn + 1]:
+                if next_level_node.p1_points == game_state.players[0].score and next_level_node.p1_rocks == game_state.players[0].rocks \
+                        and next_level_node.p2_points == game_state.players[1].score and next_level_node.p2_rocks == game_state.players[1].rocks:
+                    game_state.node_id = next_level_node.node_id
+
         # Pievieno gājienu vēsturei
         game_state.past_moves.append((turn + 1,
                                       turn % 2,
                                       rocks_taken))
+
+        # Pārbauda, vai ir iespējams tikai paņemt 2
+        if game_state.totalrocks.get() == 2:
+            f2_userbuttons_right.config(state='disabled')
+
         # Pārbauda, vai spēle ir beigusies
         if game_state.totalrocks.get() < 2:
+
             p1_finalscore = game_state.players[0].score + game_state.players[0].rocks
             p2_finalscore = game_state.players[1].score + game_state.players[1].rocks
             if p1_finalscore > p2_finalscore:
@@ -193,6 +206,11 @@ def main() -> None:
         else:
             f2_userbuttons.grid_remove()
             f2_aibuttons.grid()
+
+    def user_move(rocks_taken) -> None:
+        confirm_move(rocks_taken)
+        if game_state.players[game_state.turn.get() % 2].name != "Cilvēks" and game_state.totalrocks.get() >= 2:
+            ai_move(game_state.game_tree, game_state.turn.get())
 
     def ai_move(game_tree, turn, all_moves=False) -> None:
         rocks_taken = 0
@@ -312,13 +330,13 @@ def main() -> None:
                                     fg='#f8f8f8',
                                     relief='flat',
                                     text="2 akmentiņi",
-                                    command=lambda: confirm_move(2))
+                                    command=lambda: user_move(2))
     f2_userbuttons_right = tk.Button(f2_userbuttons,
                                      bg='#000000',
                                      fg='#f8f8f8',
                                      relief='flat',
                                      text="3 akmentiņi",
-                                     command=lambda: confirm_move(3))
+                                     command=lambda: user_move(3))
 
     # Pogas, lai liktu MI veikt gājienus
     f2_aibuttons_aimove = tk.Button(f2_aibuttons,  # Poga, lai liktu MI veikt gājienu
@@ -371,6 +389,7 @@ def main() -> None:
     # - f2 MI gājiena izvēlnes elementi
     f2_aibuttons_aimove.grid(row=2, column=1)
     f2_aibuttons_allmoves.grid(row=2, column=2, padx=(10, 0))
+    f2_aibuttons_allmoves.grid_remove()
 
     # - f2 elementi
     f2_button_newgame.grid(row=0, column=0, sticky='nw')
