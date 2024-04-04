@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 from _tkinter import TclError
 from ttkthemes import ThemedTk
-from Linards_datu_struktura import generate_game_tree, print_nodes
-from Linards_minmax import minimax, reset_memo as reset_memo_minmax
-from Linards_AlphaBeta import alphabeta, reset_memo as reset_memo_alphabeta
+from GameTree import generate_game_tree, print_nodes
+from MinMax import minmax, reset_memo as reset_memo_minmax
+from AlphaBeta import alphabeta, reset_memo as reset_memo_alphabeta
 
 
 class Player:
@@ -216,7 +216,7 @@ def main() -> None:
         rocks_taken = 0
         algorithm = game_state.players[turn % 2].name
         if algorithm == "Min-max algoritms":
-            move = minimax(game_tree, game_state.turn.get(), game_state.node_id, 70, True, game_state.turn.get() % 2)[1]
+            move = minmax(game_tree, game_state.turn.get(), game_state.node_id, 70, True, game_state.turn.get() % 2)[1]
             game_state.node_id = move.node_id
             rocks_taken = game_state.totalrocks.get() - move.rocks
         elif algorithm == "Alfa-beta algoritms":
@@ -231,8 +231,7 @@ def main() -> None:
 
     game_state = GameState()
     # --- Spēles loga izveide un uzstādīšana
-    root = ThemedTk(theme="arc")  # Izkomentēt šo un atkomentēt apakšējo, lai strādātu bez papildbibliotēkām
-    # root = tk.Tk()
+    root = ThemedTk(theme="arc")
 
     root.configure(bg='#f5f6f7')
     root.columnconfigure(0, weight=1, minsize=800)  # Centrēt galveno konteineri, paplašināt horizontāli līdz ar logu
