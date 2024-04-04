@@ -25,7 +25,7 @@ def pointscalc(move, player, akm, num_points1, num_points2): #calc children node
                 move = 2
                 num_points1 += 2
                 akm -= 2
-        if akm % 2 == 0: #check if odd, also extra check if move is legal
+        if akm % 2 == 0: #check if odd
             num_points2 += 2
         if akm % 2 == 1 :
             num_points1 += 2
