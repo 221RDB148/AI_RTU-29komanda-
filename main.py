@@ -227,7 +227,7 @@ def main() -> None:
 
         # Rekursija, lai automātiski veiktu visus pārējos gājienus
         if all_moves and game_state.totalrocks.get() >= 2:
-            ai_move(game_tree, turn, all_moves=True)
+            ai_move(game_tree, game_state.turn.get(), all_moves=True)
 
     game_state = GameState()
     # --- Spēles loga izveide un uzstādīšana
